@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\KatalogController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,3 +16,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/',[KatalogController::class,'index'])->name('welcome');
+
+Route::post('/katalog/dodaj',[KatalogController::class,'store'])->name('katalog.dodaj');
+Route::get('/pobierz-katalogi',[KatalogController::class,'getKatalogi']);
+
+
+Route::delete('/usun-katalog',[KatalogController::class,'usunKatalog'])->name('katalog.usun');
+
