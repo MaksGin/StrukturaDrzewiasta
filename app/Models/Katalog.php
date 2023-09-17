@@ -11,11 +11,7 @@ class Katalog extends Model
 
     protected $table = 'katalogi';
 
-    public function podkatalogi(){
-        return $this->HasMany(Katalog::class,'rodzic_id');
-    }
+    protected $fillable = ['nazwa'];
 
-    public function nadrzedny(){
-        return $this->BelongsTo(Katalog::class,'rodzic_id');
-    }
+
 }

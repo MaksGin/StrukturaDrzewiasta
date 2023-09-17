@@ -5,7 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>Laravel</title>
-
+        <!-- CSRF Token -->
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
@@ -14,7 +15,7 @@
 
             h2{
                 text-align: center;
-                padding-top: 100px;
+                padding-top: 20px;
                 font-size: 30px;
                 //font-family: "David CLM";
             }
@@ -30,7 +31,7 @@
             div.element {
                 width: 100%;
 
-                margin-left: 20px;
+                margin-left: 30px;
                 margin-top: 10px;
 
             }
@@ -38,49 +39,54 @@
                 min-height: 500px;
             }
             div.element > div.element{
-                width: 90%;
+                width: 100%;
 
             }
             .btn-dark{
                 text-align: center;
+
             }
+
 
 
         </style>
         @vite(['resources/css/app.css', 'resources/js/bootstrap.js'])
     </head>
-
     <body class="antialiased">
         <h2>Struktura Drzewiasta Katalogów</h2>
         <div class="card" >
             <div class="card-body rounded">
 
-                <!--<button  class="btn btn-dark" id="przycisk-rozwin-zwin" onclick="toggleWszystkiePodkatalogi()">Rozwiń/Zwiń Wszystko</button>-->
+
                 <div class="row">
                     <div class="col">
+
+                        <button class="btn btn-dark" id="Rozwin" onclick="rozwinFoldery()">Rozwiń wszystkie katalogi</button>
+
                         <div id="drzewo-katalogow"></div>
                     </div>
 
                     <div class="col" style="border-left: 1px solid black;">
-                        <div class="row">
-                            <div class="col text-center">
 
-                                <button type="submit" class="btn btn-primary" id="formularz-dodaj">Dodaj</button>
+                            @if(session('success'))
+                                <div class="alert alert-success">
+                                    {{ session('success') }}
+                                </div>
+                            @endif
 
-                            </div>
-                            <div class="col text-center">
+                            <!-- obsługa wyświetlania errorow -->
+                            @if ($errors->any())
+                                <div class="container alert alert-danger">
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
 
-                                <a href="" class="btn btn-secondary">
-                                    Edytuj
-                                </a>
-
-                            </div>
-                            <div class="col text-center">
-
-                                <button type="submit" class="btn btn-danger" id="formularz-usun">Usuń</button>
-
-                            </div>
-                            <div class="container" id="formularz" style="display:none; padding: 50px">
+                        <div class="container" style="padding: 50px">
+                                <h2>Stwórz nowy katalog</h2>
                                 <form action="{{route('katalog.dodaj')}}" method="POST">
                                     @csrf
                                     <label>Nazwa Katalogu</label>
@@ -88,35 +94,30 @@
 
                                     <label>Sciezka (Opcjonalnie) <small><i>Np. /Ten Komputer/Folder/</i></small></label>
                                     <input type="text" name="sciezka" class="form-control"/>
-                                    <button type="submit" class="btn btn-dark" >Dodaj</button>
+
+                                    <center><button type="submit" class="btn btn-dark">Dodaj</button></center>
                                 </form>
+
                             </div>
-                            <div class="container" id="formularzUsuniecia" style="display:none; padding: 50px">
-                                <form action="{{route('katalog.usun')}}" method="POST">
+
+                            <h2>Edytuj istniejący katalog</h2>
+                            <div class="container" style="padding: 50px">
+                                <form action="{{route('katalog.edytuj')}}" method="POST">
                                     @csrf
-                                    @method('DELETE')
-                                    <label>Wprowadź nazwę katalogu lub sciezke</label>
-                                    <input type="text" name="nazwa" class="form-control" required/>
-
-                                    <button type="submit" class="btn btn-dark" >Usuń</button>
+                                    @method('PUT')
+                                    <label>Podaj ścieżke do katalogu: <small><i>Dla katalogu głównego: (/Ten Komputer)</i></small></label>
+                                    <input type="text" name="sciezka" class="form-control" required/>
+                                    <label>Wprowadź nowa nazwę: </label>
+                                    <input type="text" name="nowaNazwa" class="form-control" required/>
+                                    <center><button type="submit" class="btn btn-dark" >Zatwierdź</button></center>
                                 </form>
                             </div>
-                        </div>
-
-
-
                     </div>
-                  </div>
-
-
-
+                </div>
             </div>
         </div>
-        @if ($errors->has('nazwa'))
-            <div class="container alert alert-danger">
-                {{ $errors->first('nazwa') }}
-            </div>
-        @endif
+
+
 
     </body>
 
@@ -126,15 +127,25 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    document.getElementById("formularz-dodaj").addEventListener("click", function () {
-        var formularz = document.getElementById("formularz");
-        formularz.style.display = "block"; // Pokaż formularz
-    });
-    document.getElementById("formularz-usun").addEventListener("click", function () {
-        var formularz = document.getElementById("formularzUsuniecia");
-        formularz.style.display = "block"; // Pokaż formularz
-    });
-    document.addEventListener("DOMContentLoaded", function() {
+    let stanRozwiniecia = false; // Zmienna do śledzenia stanu drzewa katalogów
+
+    function rozwinFoldery() {
+        //pobieram wszystkie elementy
+        const elementy = document.querySelectorAll('#drzewo-katalogow ul');
+
+        //przechodzę przez elementy i zmieniam stan
+        elementy.forEach(ul => {
+            if (stanRozwiniecia) {
+                ul.style.display = 'none';
+            } else {
+                ul.style.display = 'block';
+            }
+        });
+
+        // zmienam stan przycisku
+        stanRozwiniecia = !stanRozwiniecia;
+
+    }
 
 
 
@@ -145,80 +156,117 @@
         .then(data => {
             data = JSON.parse(data);
 
-        //katalogi ktore nie maja rodzica (Katalogi Główne)
-        function renderKatalogi(katalogi, rodzic_id = null) {
-            const divContainer = document.createElement('div');
-            katalogi.forEach(katalog => {
-                if (katalog.rodzic_id === rodzic_id) {
 
-                    const divElement = document.createElement('div');
-                    divElement.classList.add('element');
+            //katalogi ktore nie maja rodzica (Katalogi Główne)
+            function renderKatalogi(katalogi, rodzic_id = null, sortuj = false) {
+                const divContainer = document.createElement('div');
+                if (sortuj) {
+                    katalogi.sort((a, b) => a.nazwa.localeCompare(b.nazwa));
+                }
+                katalogi.forEach(katalog => {
+                    if (katalog.rodzic_id === rodzic_id) {
 
-                    // Ikona folderu
-                    const folderIcon = document.createElement('span');
-                    folderIcon.innerHTML = '&#128193;';
+                        const divElement = document.createElement('div');
+                        divElement.classList.add('glowne');
+                        divElement.classList.add('element');
 
-                    // Nazwa katalogu
-                    const nazwaKatalogu = document.createElement('span');
-                    nazwaKatalogu.textContent = katalog.nazwa;
-                    nazwaKatalogu.classList.add('nazwa-katalogu');
+                        // Ikona folderu
+                        const folderIcon = document.createElement('span');
+                        folderIcon.innerHTML = '&#128193;';
 
-                    // Obsługa klikniecia na katalog w celu rozwijania/zwijania
-                    nazwaKatalogu.addEventListener('click', () => {
 
-                        const podkatalog = divElement.querySelector('ul');
-                        if (podkatalog) {
 
-                            if (podkatalog.style.display === 'none' || podkatalog.style.display === '') {
+                        // Nazwa katalogu
+                        const nazwaKatalogu = document.createElement('span');
+                        nazwaKatalogu.textContent = katalog.nazwa;
+                        nazwaKatalogu.classList.add('nazwa-katalogu');
 
-                                podkatalog.style.display = 'block';
+                        // Obsługa klikniecia na katalog w celu rozwijania/zwijania
+                        nazwaKatalogu.addEventListener('click', () => {
+                            const podkatalog = divElement.querySelector('ul');
 
-                            } else {
+                            if (podkatalog) {
 
-                                podkatalog.style.display = 'none';
+                                if (podkatalog.style.display === 'none' || podkatalog.style.display === '') {
 
+                                    podkatalog.style.display = 'block';
+
+                                } else {
+
+                                    podkatalog.style.display = 'none';
+
+                                }
                             }
-                        }
-                    });
+                        });
 
-                    divElement.appendChild(folderIcon);
-                    divElement.appendChild(nazwaKatalogu);
-                    divElement.classList.add('kontener');
+                        nazwaKatalogu.addEventListener('dblclick', () => {
 
-                    //render podkatalogów
-                    const podKatalog = renderKatalogi(katalogi, katalog.id);
-                    if (podKatalog) {
-                        // Zawiera podkatalogi
-                        const ulPodkatalog = document.createElement('ul');
-                        ulPodkatalog.appendChild(podKatalog);
-                        ulPodkatalog.style.display = 'none'; //defaultowo ukryj podkatalogi
-                        divElement.appendChild(ulPodkatalog);
+                            //trzeba przekazać token podczas operacji usuwania bez tego miałem bład csrf token missmatch ;)
+                            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+                            const folderId = katalog.id; // Przyjmuję, że 'id' to unikalne ID folderu
+
+                            if (confirm('Czy na pewno chcesz usunąć ten folder?')) {
+                                $.ajax({
+                                    url: '/usun-folder',
+                                    method: 'DELETE',
+                                    data: JSON.stringify({id: folderId}),
+                                    contentType: 'application/json',
+                                    headers: {
+                                        'X-CSRF-TOKEN': csrfToken
+                                    }
+
+                                })
+                                    .done(function (data) {
+                                        console.log(data);
+                                        folderIcon.remove();
+                                        nazwaKatalogu.remove();
+                                        podKatalog.remove();
+                                    })
+                                    .fail(function (error) {
+                                        console.error('Błąd aktualizacji statusu zamówienia');
+                                    });
+                                    }
+                                });
+
+
+
+                                divElement.appendChild(folderIcon);
+                                divElement.appendChild(nazwaKatalogu);
+                                divElement.classList.add('kontener');
+
+                                //render podkatalogów
+                                const podKatalog = renderKatalogi(katalogi, katalog.id);
+                                if (podKatalog) {
+                                    // Zawiera podkatalogi
+                                    const ulPodkatalog = document.createElement('ul');
+                                    ulPodkatalog.appendChild(podKatalog);
+                                    ulPodkatalog.style.display = 'none'; //defaultowo ukryj podkatalogi
+                                    divElement.appendChild(ulPodkatalog);
+                                }
+
+                                divContainer.appendChild(divElement);
+                            }
+
+                        });
+
+                        return divContainer.children.length ? divContainer : null;
+
+
                     }
 
-                    divContainer.appendChild(divElement);
-                }
-            });
+                    const drzewoUI = renderKatalogi(data);
 
-            return divContainer.children.length ? divContainer : null;
-        }
+                    if (drzewoUI) {
+                        document.getElementById('drzewo-katalogow').appendChild(drzewoUI);
 
+                    }
 
+                }).catch(error => console.error(error))
 
-
-        const drzewoUI = renderKatalogi(data);
-
-
-        if (drzewoUI) {
-            document.getElementById('drzewo-katalogow').appendChild(drzewoUI);
-        }
-
-    }).catch(error=>console.error(error));
+        document.addEventListener("DOMContentLoaded", function() {
 
 
 
-
-
-});
-
-
+        });
 </script>
