@@ -12,6 +12,8 @@ Moja Aplikacja przedstawia strukturę drzewiastą katalogów. Wykorzystałem pod
   - Dodawanie dla głównego katalogu (bez sciezki), dla podkatalogów wymagane jest podanie scieżki
   - Usuwanie - poprzez podwójne klikniecie na katalog
   - Edycja istniejącego katalogu (trzeba podać scieżke do katalogu który chcemy edytować)
+
+    scieżka do aktualizacji podkatalogu Wakacje który znajduje sie w katalogu Zdjęcia wyglada tak:  /Zdjęcia/Wakacje
 - Rozwinięcie całej struktury
 - Walidacja
   - Nazwy katalogów nie mogą sie powtarzać w obrębie jednego głównego katalogu (rodzica)
