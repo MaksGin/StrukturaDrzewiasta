@@ -2,13 +2,16 @@
 
 Moja Aplikacja przedstawia strukturę drzewiastą katalogów. Wykorzystałem podejście rekurencyjne do wyświetlania i usuwania katalogów.
 
+![image](https://github.com/MaksGin/StrukturaDrzewiasta/assets/26302413/4b84c7da-ccd3-49fb-b3c2-c1429fd72035)
+
+
 ### Funkcje
 
 - Struktura umożliwia działanie na nieograniczonej liczbie poziomów
 - Funkcje dla użytkownika:
   - Dodawanie dla głównego katalogu (bez sciezki), dla podkatalogów wymagane jest podanie scieżki
   - Usuwanie - poprzez podwójne klikniecie na katalog
-  - Edycja istniejącego katalogu
+  - Edycja istniejącego katalogu (trzeba podać scieżke do katalogu który chcemy edytować)
 - Rozwinięcie całej struktury
 - Walidacja
   - Nazwy katalogów nie mogą sie powtarzać w obrębie jednego głównego katalogu (rodzica)
