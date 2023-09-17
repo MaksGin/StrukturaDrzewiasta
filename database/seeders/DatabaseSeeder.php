@@ -16,15 +16,21 @@ class DatabaseSeeder extends Seeder
 
         Katalog::create([
             'nazwa' => 'Zdjęcia',
-            // Dodaj inne kolumny i ich wartości
+
         ]);
         Katalog::create([
             'nazwa' => 'Dokumenty',
-            // Dodaj inne kolumny i ich wartości
+
         ]);
         Katalog::create([
             'nazwa' => 'Ważne',
-            // Dodaj inne kolumny i ich wartości
+            'rodzic_id' => 2,
+
+        ]);
+        Katalog::create([
+            'nazwa' => 'Wakacje',
+            'rodzic_id' => 1,
+
         ]);
 
 

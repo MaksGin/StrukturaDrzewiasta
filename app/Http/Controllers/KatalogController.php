@@ -29,20 +29,19 @@ class KatalogController extends Controller
     {
 
         $validatedData = $request->validate([
-            'nazwa' => [
-                'required',
-                'regex:/^[\p{L}a-zA-Z0-9\s\-_]+$/u', //wyrazenie regularne
-                Rule::unique('katalogi', 'nazwa')
-                    ->where(function ($query) use ($request) {
-                        // Dodaj warunek, aby unikalna nazwa była w ramach tego samego rodzica
-                        $query->where('rodzic_id', $request->input('rodzic_id'));
-                    })
+        'nazwa' => [
+            'required',
+            'regex:/^[\p{L}a-zA-Z0-9\s\-_]+$/u', //wyrazenie regularne
+            Rule::unique('katalogi', 'nazwa')
+                ->where(function ($query) use ($request) {
+                    $query->where('rodzic_id', $request->input('rodzic_id'));
+                })
 
-            ],
-        ], [
-            'nazwa.regex' => 'Nazwa katalogu może zawierać tylko litery, cyfry, spacje, myślniki i podkreślenia.',
-            'nazwa.unique' => 'Taki Katalog już istnieje w innym miejscu',
-        ]);
+        ],
+    ], [
+        'nazwa.regex' => 'Nazwa katalogu może zawierać tylko litery, cyfry, spacje, myślniki i podkreślenia.',
+        'nazwa.unique' => 'Taki Katalog już istnieje w innym miejscu',
+    ]);
 
 
         $sciezka = $request->input('sciezka');
@@ -107,12 +106,12 @@ class KatalogController extends Controller
         // Pobierz wszystkie podkatalogi tego katalogu
         $podkatalogi = Katalog::where('rodzic_id', $katalog->id)->get();
 
-        // Usuń podkatalogi rekurencyjnie
+
         foreach ($podkatalogi as $podkatalog) {
             $this->usunKatalogRekurencyjnie($podkatalog);
         }
 
-        // Usuń ten katalog
+
         $katalog->delete();
     }
 

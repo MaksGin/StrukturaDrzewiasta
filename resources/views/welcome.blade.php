@@ -62,7 +62,7 @@
                     <div class="col">
 
                         <button class="btn btn-dark" id="Rozwin" onclick="rozwinFoldery()">Rozwiń wszystkie katalogi</button>
-
+                        <button class="btn btn-dark" id="przyciskSortowania">Odwróć kierunek sortowania</button>
                         <div id="drzewo-katalogow"></div>
                     </div>
 
@@ -158,11 +158,18 @@
 
 
             //katalogi ktore nie maja rodzica (Katalogi Główne)
-            function renderKatalogi(katalogi, rodzic_id = null, sortuj = false) {
+            function renderKatalogi(katalogi, rodzic_id = null, sortuj = false, sortujRosnaco = true) {
                 const divContainer = document.createElement('div');
+
+                //jesli sortuj ma wartosc true to kod zostanie wykonany
                 if (sortuj) {
-                    katalogi.sort((a, b) => a.nazwa.localeCompare(b.nazwa));
+                    if (sortujRosnaco) {
+                        katalogi.sort((a, b) => a.nazwa.localeCompare(b.nazwa));
+                    } else {
+                        katalogi.sort((a, b) => b.nazwa.localeCompare(a.nazwa));
+                    }
                 }
+
                 katalogi.forEach(katalog => {
                     if (katalog.rodzic_id === rodzic_id) {
 
@@ -218,10 +225,11 @@
 
                                 })
                                     .done(function (data) {
-                                        console.log(data);
+
                                         folderIcon.remove();
                                         nazwaKatalogu.remove();
                                         podKatalog.remove();
+
                                     })
                                     .fail(function (error) {
                                         console.error('Błąd aktualizacji statusu zamówienia');
@@ -236,7 +244,7 @@
                                 divElement.classList.add('kontener');
 
                                 //render podkatalogów
-                                const podKatalog = renderKatalogi(katalogi, katalog.id);
+                                const podKatalog = renderKatalogi(katalogi, katalog.id,false,false);
                                 if (podKatalog) {
                                     // Zawiera podkatalogi
                                     const ulPodkatalog = document.createElement('ul');
@@ -255,11 +263,40 @@
 
                     }
 
-                    const drzewoUI = renderKatalogi(data);
 
+                    const przyciskSortowania = document.getElementById('przyciskSortowania');
+
+                    //katalogi nie sa posortowane
+                    let stanSortowania = false;
+
+
+                    przyciskSortowania.addEventListener('click', () => {
+
+                        // podczas klikniecia zmieniam stan
+                        stanSortowania = !stanSortowania;
+
+
+                        const sortujRosnaco = stanSortowania;
+
+
+                        const drzewoUI = renderKatalogi(data, null, true, sortujRosnaco);
+
+                        const drzewoKatalogow = document.getElementById('drzewo-katalogow');
+                        drzewoKatalogow.innerHTML = '';
+
+
+                        // nowe posortowane drzewo
+                        if (drzewoUI) {
+                            drzewoKatalogow.appendChild(drzewoUI);
+                        }
+
+                    });
+
+
+                    // tutaj jest inicjowane drzewo po zaladowaniu strony
+                    const drzewoUI = renderKatalogi(data, null, true, false);
                     if (drzewoUI) {
                         document.getElementById('drzewo-katalogow').appendChild(drzewoUI);
-
                     }
 
                 }).catch(error => console.error(error))

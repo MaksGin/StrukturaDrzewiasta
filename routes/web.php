@@ -25,4 +25,4 @@ Route::get('/pobierz-katalogi',[KatalogController::class,'getKatalogi']);
 Route::delete('/usun-katalog',[KatalogController::class,'usunKatalog'])->name('katalog.usun');
 Route::delete('/usun-folder',[KatalogController::class,'folderUsun'])->name('folder.usun');
 Route::put('/katalog/update', [KatalogController::class, 'update'])->name('katalog.edytuj');
-Route::get('/sortuj-katalogi', [KatalogController::class, 'sortujKatalogi'])->name('katalog.sortuj');
+//Route::get('/sortuj-katalogi', [KatalogController::class, 'sortujKatalogi'])->name('katalog.sortuj');
