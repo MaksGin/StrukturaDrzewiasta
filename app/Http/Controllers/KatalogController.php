@@ -17,7 +17,7 @@ class KatalogController extends Controller
     }
 
     public function getKatalogi(){
-        $katalogi = Katalog::orderBy('nazwa','asc')->get();
+        $katalogi = Katalog::all();
 
         $DataJson = $katalogi->toJson();
 
@@ -31,7 +31,7 @@ class KatalogController extends Controller
         $validatedData = $request->validate([
             'nazwa' => [
                 'required',
-                'regex:/^[a-zA-Z0-9\s\-_]+$/u', //wyrazenie regularne
+                'regex:/^[\p{L}a-zA-Z0-9\s\-_]+$/u', //wyrazenie regularne
                 Rule::unique('katalogi', 'nazwa')
                     ->where(function ($query) use ($request) {
                         // Dodaj warunek, aby unikalna nazwa była w ramach tego samego rodzica
@@ -123,10 +123,10 @@ class KatalogController extends Controller
             'sciezka' => 'required',
             'nowaNazwa' => [
                 'required',
-                'regex:/^[a-zA-Z0-9\s\-_]+$/u',
+                'regex:/^[\p{L}a-zA-Z0-9\s\-_]+$/u',
                 Rule::unique('katalogi', 'nazwa')
                     ->where(function ($query) use ($request) {
-                        // Dodaj warunek, aby unikalna nazwa była w ramach tego samego rodzica
+
                         $query->where('rodzic_id', $request->input('nowaNazwa'));
                     })
             ],
